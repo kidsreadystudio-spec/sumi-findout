@@ -302,7 +302,7 @@ button{font-family:inherit;cursor:pointer;border:none}
   <!-- 結束 -->
   <section id="end" class="screen">
     <img class="sumiimg" data-img="trophy" alt="蘇米拿著獎盃">
-    <h1 id="endTitle">蘇米的東西都找到了，牠好開心！</h1>
+    <h1 id="endTitle">蘇米的東西都找到了，她好開心！</h1>
     <div class="stars" id="endStars"></div>
     <div class="row">
       <button class="btn" id="nextLvBtn">下一關</button>
@@ -374,7 +374,7 @@ const ZY = {
   好:"ㄏㄠˇ",子:"ㄗˇ",對:"ㄉㄨㄟˋ",小:"ㄒㄧㄠˇ",層:"ㄘㄥˊ",左:"ㄗㄨㄛˇ",帽:"ㄇㄠˋ",序:"ㄒㄩˋ",張:"ㄓㄤ",後:"ㄏㄡˋ",
   從:"ㄘㄨㄥˊ",心:"ㄒㄧㄣ",找:"ㄓㄠˇ",掉:"ㄉㄧㄠˋ",放:"ㄈㄤˋ",數:"ㄕㄨˇ",旁:"ㄆㄤˊ",書:"ㄕㄨ",最:"ㄗㄨㄟˋ",有:"ㄧㄡˇ",
   木:"ㄇㄨˋ",東:"ㄉㄨㄥ",枕:"ㄓㄣˇ",枝:"ㄓ",桌:"ㄓㄨㄛ",梯:"ㄊㄧ",棵:"ㄎㄜ",椅:"ㄧˇ",樹:"ㄕㄨˋ",櫃:"ㄍㄨㄟˋ",水:"ㄕㄨㄟˇ",
-  汽:"ㄑㄧˋ",沙:"ㄕㄚ",溜:"ㄌㄧㄡ",滑:"ㄏㄨㄚˊ",滾:"ㄍㄨㄣˇ",熊:"ㄒㄩㄥˊ",牠:"ㄊㄚ",球:"ㄑㄧㄡˊ",發:"ㄈㄚ",的:"˙ㄉㄜ",
+  汽:"ㄑㄧˋ",沙:"ㄕㄚ",溜:"ㄌㄧㄡ",滑:"ㄏㄨㄚˊ",滾:"ㄍㄨㄣˇ",熊:"ㄒㄩㄥˊ",牠:"ㄊㄚ",她:"ㄊㄚ",球:"ㄑㄧㄡˊ",發:"ㄈㄚ",的:"˙ㄉㄜ",
   盆:"ㄆㄣˊ",盒:"ㄏㄜˊ",積:"ㄐㄧ",第:"ㄉㄧˋ",箱:"ㄒㄧㄤ",籃:"ㄌㄢˊ",米:"ㄇㄧˇ",粉:"ㄈㄣˇ",紅:"ㄏㄨㄥˊ",綠:"ㄌㄩˋ",背:"ㄅㄟ",
   色:"ㄙㄜˋ",花:"ㄏㄨㄚ",藍:"ㄌㄢˊ",蘇:"ㄙㄨ",裡:"ㄌㄧˇ",襪:"ㄨㄚˋ",西:"ㄒㄧ",要:"ㄧㄠˋ",車:"ㄔㄜ",這:"ㄓㄜˋ",過:"ㄍㄨㄛˋ",
   還:"ㄏㄞˊ",邊:"ㄅㄧㄢ",那:"ㄋㄚˋ",都:"ㄉㄡ",鈴:"ㄌㄧㄥˊ",鐺:"˙ㄉㄤ",鑰:"ㄧㄠˋ",長:"ㄔㄤˊ",開:"ㄎㄞ",面:"ㄇㄧㄢˋ",順:"ㄕㄨㄣˋ",
@@ -447,7 +447,7 @@ function buildBank(L, k){
   const O = L.objs, bank = [];
   if(k==="single"){
     O.forEach((o,i)=>{
-      bank.push({say:`蘇米的${o.k}在${o.p}，幫牠找一找！`, html:`蘇米的${E(o.k)}在${E(o.p)}，幫牠找一找！`, ok:`${o.k}在${o.p}。`, targets:[i]});
+      bank.push({say:`蘇米的${o.k}在${o.p}，幫她找一找！`, html:`蘇米的${E(o.k)}在${E(o.p)}，幫她找一找！`, ok:`${o.k}在${o.p}。`, targets:[i]});
       bank.push({say:`${o.p}有什麼？點點看！`, html:`${E(o.p)}有什麼？點點看！`, ok:`${o.p}有${o.k}。`, targets:[i]});
     });
     L.empties.forEach((e,j)=> bank.push({say:e.q, html:e.q.replace(/(空的)/, E("$1")), ok:e.ok, targets:[O.length+j]}));
@@ -562,7 +562,7 @@ function next(){
     starRow($("#endStars"), SET.length);
     $("#endTitle").textContent = `${LV.name}的東西都找到了，蘇米好開心！`;
     $("#nextLvBtn").style.display = nextLevelIndex()>=0 ? "" : "none";
-    show("end"); speak("蘇米的東西都找到了，牠好開心！");
+    show("end"); speak("蘇米的東西都找到了，她好開心！");
   } else brief();
 }
 function home(){ try{speechSynthesis.cancel()}catch(e){} $("#okOverlay").classList.remove("on"); show("title"); }
