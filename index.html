@@ -513,7 +513,7 @@ function buildBank(L, k){
       const A=O[a], B=O[b];
       if(a<b) bank.push({say:`蘇米的${A.k}在${A.p}，${B.k}在${B.p}。`, html:`蘇米的${E(A.k)}在${E(A.p)}，${E(B.k)}在${E(B.p)}。`,
         ok:`${A.k}在${A.p}，${B.k}在${B.p}。`, targets:[a,b], ordered:false});
-      if(L.id>=3) bank.push({say:`先找${A.p}的${A.k}，再找${B.p}的${B.k}。`, html:`${E("先")}找${E(A.p)}的${A.k}，${E("再")}找${E(B.p)}的${B.k}。`,
+      if(L.id>=3) bank.push({say:`先找${A.p}的${A.k}，再找${B.p}的${B.k}。`, html:`${E("先")}找${E(A.p)}的${E(A.k)}，${E("再")}找${E(B.p)}的${E(B.k)}。`,
         ok:`先找到${A.k}，再找到${B.k}，順序對了！`, targets:[a,b], ordered:true});
     }
     if(L.id>=4){
@@ -521,7 +521,7 @@ function buildBank(L, k){
         const [a,b,c] = shuffle([0,1,2,3,4]);
         if(new Set([O[a].k,O[b].k,O[c].k]).size<3) continue;
         bank.push({say:`先找${O[a].p}的${O[a].k}，再找${O[b].p}的${O[b].k}，最後找${O[c].p}的${O[c].k}。`,
-          html:`${E("先")}找${O[a].p}的${O[a].k}，${E("再")}找${O[b].p}的${O[b].k}，${E("最後")}找${O[c].p}的${O[c].k}。`,
+          html:`${E("先")}找${E(O[a].p)}的${E(O[a].k)}，${E("再")}找${E(O[b].p)}的${E(O[b].k)}，${E("最後")}找${E(O[c].p)}的${E(O[c].k)}。`,
           ok:`${O[a].k}、${O[b].k}、${O[c].k}，三個都照順序找到了！`, targets:[a,b,c], ordered:true});
       }
     }
@@ -565,7 +565,13 @@ function softBreaks(h){
 function phraseHtml(html){
   return html.split(/<br>/).map(line=>{
     const parts = (softBreaks(line).match(/[^，。！？、|]+[，。！？、]*\|?|[，。！？、]+\|?|\|/g) || [line]);
-    return parts.map(t=>t.replace(/\|/g,"")).filter(t=>t).map(t=>`<span class="ph">${withZy(t)}</span>`).join("");
+    let open=false;   // 重點（<em>）跨過換行點時，兩邊都要保留重點
+    return parts.map(t=>t.replace(/\|/g,"")).filter(t=>t).map(t=>{
+      let u = (open ? "<em>" : "") + t;
+      const o=(u.match(/<em>/g)||[]).length, c=(u.match(/<\/em>/g)||[]).length;
+      open = o>c; if(open) u += "</em>";
+      return `<span class="ph">${withZy(u)}</span>`;
+    }).join("");
   }).join("<br>");
 }
 function fitBubble(){
