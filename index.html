@@ -211,6 +211,20 @@ button{font-family:inherit;cursor:pointer;border:none}
 .mixthumb{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:2px;overflow:hidden;background:#F3B76B}
 .mixthumb img{width:100%;height:100%;object-fit:cover;display:block}
 .mixthumb span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:34px;background:#FFFDF8;border-radius:50%;width:54px;height:54px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px #0003}
+/* 綜合關選地點 */
+#rooms{padding:12px 16px;justify-content:flex-start;overflow-y:auto}
+#rooms .lvhead h2{flex:1}
+.rmgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(8px,1.6vw,16px)}
+@media (max-aspect-ratio: 3/4){ .rmgrid{grid-template-columns:repeat(2,1fr)} }
+.rmcard{background:#FFFDF8;border:4px solid #F0DFC6;border-radius:22px;padding:6px 6px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;
+  font-family:inherit;color:#4A3424;box-shadow:0 5px 0 #EFE0C8;cursor:pointer;transition:transform .08s}
+.rmcard:active{transform:translateY(3px)}
+.rmcard img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:15px;display:block}
+.rmcard b{font-size:clamp(18px,2.6vw,28px)}
+.rmcard.wiggle{animation:wig .45s}
+.rmcard.right{border-color:#7BAE5A;box-shadow:0 0 0 6px #7BAE5A66}
+.rmcard.hint{animation:rmhint 1s 3}
+@keyframes rmhint{50%{border-color:#F2C94C;box-shadow:0 0 0 8px #F2C94C99}}
 /* end */
 #end h1{font-size:clamp(34px,6vw,64px);color:var(--brown);margin:.3em 0}
 #end .stars{background:none;margin-bottom:1em}
@@ -251,6 +265,14 @@ button{font-family:inherit;cursor:pointer;border:none}
     <div class="lvwrap">
       <div class="lvhead"><button class="iconbtn" id="lvBack" aria-label="回首頁">↩</button><h2>選一個地方找找看</h2><span class="lvkind" id="lvKind"></span></div>
       <div class="lvgrid" id="lvGrid"></div>
+    </div>
+  </section>
+
+  <!-- 綜合關：先選要去哪裡 -->
+  <section id="rooms" class="screen">
+    <div class="lvwrap">
+      <div class="lvhead"><button class="iconbtn" id="rmBack" aria-label="回選關">↩</button><h2 id="rmTitle">要去哪裡找呢？</h2><button class="iconbtn" id="rmEar" aria-label="再聽一次">🔊</button></div>
+      <div class="rmgrid" id="rmGrid"></div>
     </div>
   </section>
 
@@ -655,7 +677,36 @@ function home(){ stopVoice(); $("#okOverlay").classList.remove("on"); show("titl
 $("#startBtn").onclick = ()=>openLevels("single");
 $("#startBtn2").onclick = ()=>openLevels("double");
 $("#lvBack").onclick = home;
-$("#goBtn").onclick = ()=>{ stopVoice(); buildScene(); };
+$("#goBtn").onclick = ()=>{ stopVoice(); MIX ? openRooms() : buildScene(); };
+/* 綜合關：孩子自己選地點，選對了才進去找 */
+let rmWrong = 0;
+function openRooms(){
+  rmWrong = 0;
+  const live = LEVELS.map((L,i)=>i).filter(i=>!LEVELS[i].pending);
+  $("#rmTitle").innerHTML = withZy("要去哪裡找呢？");
+  $("#rmEar").textContent = mode==="read" ? "📖" : "🔊";
+  $("#rmGrid").innerHTML = shuffle(live).map(i=>`<button class="rmcard" data-i="${i}"><img src="${BG[LEVELS[i].bg]}" alt=""><b>${withZy(LEVELS[i].name)}</b></button>`).join("");
+  document.querySelectorAll(".rmcard").forEach(c=>c.onclick=()=>pickRoom(+c.dataset.i, c));
+  show("rooms");
+}
+function pickRoom(i, el){
+  const q = SET[qi];
+  if(i === q.lv){
+    sfx.ok(); el.classList.add("right");
+    setTimeout(()=>buildScene(), 650);
+  } else {
+    rmWrong++; sfx.no();
+    el.classList.remove("wiggle"); void el.offsetWidth; el.classList.add("wiggle");
+    const ob=$("#oops"); if(ob){ ob.classList.add("on"); clearTimeout(ob._t); ob._t=setTimeout(()=>ob.classList.remove("on"),1200); }
+    if(rmWrong===2) setTimeout(()=>speak(ROOM_LINE(LEVELS[q.lv])), 400);
+    if(rmWrong>=3){ const r=document.querySelector(`.rmcard[data-i="${q.lv}"]`); if(r){ r.classList.remove("hint"); void r.offsetWidth; r.classList.add("hint"); } }
+  }
+}
+$("#rmBack").onclick = ()=>{ stopVoice(); openLevels(kind); };
+$("#rmEar").onclick = ()=>{
+  if(mode==="read"){ $("#readText").innerHTML = withZy(qHtml(SET[qi])); $("#readOverlay").classList.add("on"); }
+  else speak(qSay(SET[qi]));
+};
 $("#replayBtn").onclick = ()=>speak(qSay(SET[qi]));
 $("#earBtn").onclick = ()=>{
   if(mode==="read"){ $("#readText").innerHTML = withZy(qHtml(SET[qi])); $("#readOverlay").classList.add("on"); }
