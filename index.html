@@ -225,6 +225,17 @@ button{font-family:inherit;cursor:pointer;border:none}
 .rmcard.right{border-color:#7BAE5A;box-shadow:0 0 0 6px #7BAE5A66}
 .rmcard.hint{animation:rmhint 1s 3}
 @keyframes rmhint{50%{border-color:#F2C94C;box-shadow:0 0 0 8px #F2C94C99}}
+/* 再看一次題目 */
+.iconbtn.wide{width:auto;border-radius:99px;padding:0 .8em;font-size:clamp(16px,2.4vw,22px);font-family:inherit;font-weight:bold;white-space:nowrap}
+.qov{z-index:30}
+.qov .panel{max-width:900px}
+.qovbody{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:14px}
+#readText{border:none;background:none;padding:0;margin:0;max-width:none;min-height:0;font-size:clamp(20px,3.6vw,38px);line-height:1.55;color:#4A3424;text-align:left}
+#readText .ph{display:inline-block;white-space:nowrap}
+.qbar{height:6px;width:100%;border-radius:3px;background:#F3B76B;transform-origin:left;opacity:0}
+.qbar.run{opacity:1;animation:qbar 5s linear forwards}
+@keyframes qbar{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+@media (max-width:600px){ .qov .sumiimg{display:none} #readText{font-size:clamp(20px,6.4vw,30px)} }
 /* end */
 #end h1{font-size:clamp(34px,6vw,64px);color:var(--brown);margin:.3em 0}
 #end .stars{background:none;margin-bottom:1em}
@@ -308,15 +319,6 @@ button{font-family:inherit;cursor:pointer;border:none}
     <div class="rotate" id="rotateHint">把手機轉橫的，畫面會更大喔 ↻</div>
     <div class="toast" id="toast"></div>
     <img class="oops" id="oops" data-img="oops" alt="蘇米苦惱">
-    <div class="overlay" id="readOverlay">
-      <div class="panel" style="border-color:var(--apricot)">
-        <img class="sumiimg framed" data-img="search" alt="蘇米">
-        <div>
-          <div class="bubble" id="readText" style="border:none;padding:0"></div>
-          <button class="btn" id="readClose" style="margin-top:18px">我看完了</button>
-        </div>
-      </div>
-    </div>
     <div class="overlay" id="okOverlay">
       <div class="panel">
         <img class="sumiimg" data-img="happy" alt="蘇米">
@@ -341,6 +343,16 @@ button{font-family:inherit;cursor:pointer;border:none}
     </div>
   </section>
 
+  <div class="overlay qov" id="readOverlay">
+    <div class="panel" style="border-color:var(--apricot)">
+      <img class="sumiimg framed" data-img="search" alt="蘇米">
+      <div class="qovbody">
+        <div class="bubble" id="readText"></div>
+        <button class="btn" id="readClose">我看完了</button>
+        <div class="qbar" id="qbar"></div>
+      </div>
+    </div>
+  </div>
 </main>
 <footer>© 童手童腳 Kids Ready</footer>
 </div>
@@ -615,7 +627,8 @@ function buildScene(){
   svg.innerHTML = body + `<g id="marks"></g><g id="fx"></g>`;
   svg.querySelectorAll(".item").forEach(g=>g.addEventListener("click",e=>{ e.stopPropagation(); pick(+g.dataset.i); }));
   starRow($("#stars"), qi);
-  $("#earBtn").textContent = mode==="read" ? "📖" : "🔊";
+  $("#earBtn").textContent = mode==="read" ? "📖 再看一次題目" : "🔊";
+  $("#earBtn").classList.toggle("wide", mode==="read");
   $("#readOverlay").classList.remove("on");
   show("scene");
 }
@@ -643,7 +656,7 @@ function wrongTap(q, o, sayLine){
   const ob=$("#oops"); ob.classList.add("on"); clearTimeout(ob._t); ob._t=setTimeout(()=>ob.classList.remove("on"),1200);
   fx(`<text class="qmark" x="${o.x}" y="${o.y-o.r-6}" text-anchor="middle">?</text>`, 950);
   if(sayLine){ speak(sayLine); toast(sayLine); }
-  else if(wrong===2){ setTimeout(()=>speak(q.say), 500); }
+  else if(wrong===2){ setTimeout(()=> mode==="read" ? showQuestion(true) : speak(q.say), 500); }
   if(wrong>=3){
     let left = q.targets.filter(t=>!found.includes(t)); if(q.ordered) left = left.slice(0,1);
     left.forEach(t=>{ const h=spots()[t]; fx(`<circle class="hintring" cx="${h.x}" cy="${h.y}" r="${h.r}"/>`, 3300); });
@@ -690,7 +703,8 @@ function openRooms(){
   rmWrong = 0;
   const live = LEVELS.map((L,i)=>i).filter(i=>!LEVELS[i].pending);
   $("#rmTitle").innerHTML = withZy("要去哪裡找呢？");
-  $("#rmEar").textContent = mode==="read" ? "📖" : "🔊";
+  $("#rmEar").textContent = mode==="read" ? "📖 再看一次題目" : "🔊";
+  $("#rmEar").classList.toggle("wide", mode==="read");
   $("#rmGrid").innerHTML = shuffle(live).map(i=>`<button class="rmcard" data-i="${i}"><img src="${BG[LEVELS[i].bg]}" alt=""><b>${withZy(LEVELS[i].name)}</b></button>`).join("");
   document.querySelectorAll(".rmcard").forEach(c=>c.onclick=()=>pickRoom(+c.dataset.i, c));
   show("rooms");
@@ -704,21 +718,30 @@ function pickRoom(i, el){
     rmWrong++; sfx.no();
     el.classList.remove("wiggle"); void el.offsetWidth; el.classList.add("wiggle");
     const ob=$("#oops"); if(ob){ ob.classList.add("on"); clearTimeout(ob._t); ob._t=setTimeout(()=>ob.classList.remove("on"),1200); }
-    if(rmWrong===2) setTimeout(()=>speak(ROOM_LINE(LEVELS[q.lv])), 400);
+    if(rmWrong===2) setTimeout(()=> mode==="read" ? showQuestion(true) : speak(ROOM_LINE(LEVELS[q.lv])), 400);
     if(rmWrong>=3){ const r=document.querySelector(`.rmcard[data-i="${q.lv}"]`); if(r){ r.classList.remove("hint"); void r.offsetWidth; r.classList.add("hint"); } }
   }
 }
 $("#rmBack").onclick = ()=>{ stopVoice(); openLevels(kind); };
 $("#rmEar").onclick = ()=>{
-  if(mode==="read"){ $("#readText").innerHTML = withZy(qHtml(SET[qi])); $("#readOverlay").classList.add("on"); }
+  if(mode==="read"){ showQuestion(false); }
   else speak(qSay(SET[qi]));
 };
 $("#replayBtn").onclick = ()=>speak(qSay(SET[qi]));
+/* 只用讀：再看一次題目（auto=true 時出現幾秒後自己收起來） */
+let qovTimer;
+function showQuestion(auto){
+  const o=$("#readOverlay"); clearTimeout(qovTimer);
+  $("#readText").innerHTML = phraseHtml(qHtml(SET[qi]));
+  const bar=$("#qbar"); bar.classList.remove("run"); void bar.offsetWidth;
+  if(auto){ bar.classList.add("run"); qovTimer=setTimeout(()=>o.classList.remove("on"), 5000); }
+  o.classList.add("on");
+}
 $("#earBtn").onclick = ()=>{
-  if(mode==="read"){ $("#readText").innerHTML = withZy(qHtml(SET[qi])); $("#readOverlay").classList.add("on"); }
+  if(mode==="read"){ showQuestion(false); }
   else speak(qSay(SET[qi]));
 };
-$("#readClose").onclick = ()=>$("#readOverlay").classList.remove("on");
+$("#readClose").onclick = ()=>{ clearTimeout(qovTimer); $("#readOverlay").classList.remove("on"); };
 $("#nextBtn").onclick = next;
 $("#backBtn").onclick = ()=>openLevels(kind);
 $("#againBtn").onclick = ()=> MIX ? startMix() : startLevel(SET[0].lv);
