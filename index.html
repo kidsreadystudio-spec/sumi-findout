@@ -440,7 +440,7 @@ const ZY = {
   好:"ㄏㄠˇ",子:"ㄗˇ",對:"ㄉㄨㄟˋ",小:"ㄒㄧㄠˇ",層:"ㄘㄥˊ",左:"ㄗㄨㄛˇ",帽:"ㄇㄠˋ",序:"ㄒㄩˋ",張:"ㄓㄤ",後:"ㄏㄡˋ",
   從:"ㄘㄨㄥˊ",心:"ㄒㄧㄣ",找:"ㄓㄠˇ",掉:"ㄉㄧㄠˋ",放:"ㄈㄤˋ",數:"ㄕㄨˇ",旁:"ㄆㄤˊ",書:"ㄕㄨ",最:"ㄗㄨㄟˋ",有:"ㄧㄡˇ",
   木:"ㄇㄨˋ",東:"ㄉㄨㄥ",枕:"ㄓㄣˇ",枝:"ㄓ",桌:"ㄓㄨㄛ",梯:"ㄊㄧ",棵:"ㄎㄜ",椅:"ㄧˇ",樹:"ㄕㄨˋ",櫃:"ㄍㄨㄟˋ",水:"ㄕㄨㄟˇ",
-  汽:"ㄑㄧˋ",沙:"ㄕㄚ",溜:"ㄌㄧㄡ",滑:"ㄏㄨㄚˊ",滾:"ㄍㄨㄣˇ",熊:"ㄒㄩㄥˊ",牠:"ㄊㄚ",她:"ㄊㄚ",球:"ㄑㄧㄡˊ",發:"ㄈㄚ",的:"˙ㄉㄜ",
+  汽:"ㄑㄧˋ",沙:"ㄕㄚ",溜:"ㄌㄧㄡˋ",滑:"ㄏㄨㄚˊ",滾:"ㄍㄨㄣˇ",熊:"ㄒㄩㄥˊ",牠:"ㄊㄚ",她:"ㄊㄚ",球:"ㄑㄧㄡˊ",發:"ㄈㄚ",的:"˙ㄉㄜ",
   盆:"ㄆㄣˊ",盒:"ㄏㄜˊ",積:"ㄐㄧ",第:"ㄉㄧˋ",箱:"ㄒㄧㄤ",籃:"ㄌㄢˊ",米:"ㄇㄧˇ",粉:"ㄈㄣˇ",紅:"ㄏㄨㄥˊ",綠:"ㄌㄩˋ",背:"ㄅㄟ",
   色:"ㄙㄜˋ",花:"ㄏㄨㄚ",藍:"ㄌㄢˊ",蘇:"ㄙㄨ",裡:"ㄌㄧˇ",襪:"ㄨㄚˋ",西:"ㄒㄧ",要:"ㄧㄠˋ",車:"ㄔㄜ",這:"ㄓㄜˋ",過:"ㄍㄨㄛˋ",
   還:"ㄏㄞˊ",邊:"ㄅㄧㄢ",那:"ㄋㄚˋ",都:"ㄉㄡ",鈴:"ㄌㄧㄥˊ",鐺:"˙ㄉㄤ",鑰:"ㄧㄠˋ",長:"ㄔㄤˊ",開:"ㄎㄞ",面:"ㄇㄧㄢˋ",順:"ㄕㄨㄣˋ",
@@ -586,14 +586,26 @@ function phraseHtml(html){
     }).join("");
   }).join("<br>");
 }
+/* 同一輪 5 題用同一個字級：先量每一題能放多大，取最小的那個，避免一題大一題小 */
+let SET_FS=null, SET_FS_KEY="";
 function fitBubble(){
   const b=$("#bubble"), box=b.closest(".ibubble"), stage=b.closest(".bstage");
   if(!box||!stage||b.classList.contains("hidden-text")){ b.style.fontSize=""; return; }
+  const key = SET.map(q=>q.html+"|"+(q.lv??"")).join("#")+"@"+stage.clientWidth+"x"+stage.clientHeight+useZy;
+  if(key!==SET_FS_KEY){
+    const keep=b.innerHTML; let min=999;
+    SET.forEach(q=>{ b.innerHTML=phraseHtml(qHtml(q)); min=Math.min(min, fitOne(b,box,stage)); });
+    b.innerHTML=keep; SET_FS=min; SET_FS_KEY=key;
+  }
+  b.style.fontSize = SET_FS+"px";
+}
+function fitOne(b,box,stage){
   const maxH = stage.clientHeight*0.62;
   let fs = Math.min(64, stage.clientWidth*0.09);
   const fits = ()=>{ const w=b.clientWidth; return box.offsetHeight<=maxH && [...b.querySelectorAll(".ph")].every(e=>e.offsetWidth<=w+1); };
   b.style.fontSize = fs+"px";
   while(fs>13 && !fits()){ fs-=1; b.style.fontSize = fs+"px"; }
+  return fs;
 }
 addEventListener("resize",()=>{ if($("#brief").classList.contains("on")) fitBubble(); });
 function qSay(q){ if(!MIX) return q.say; const r=ROOM_LINE(LEVELS[q.lv]); return VOX[r] ? [r, q.say] : q.say; }
