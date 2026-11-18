@@ -241,6 +241,7 @@ button{font-family:inherit;cursor:pointer;border:none}
 .vid{position:absolute;inset:0;overflow:hidden;background:#f6efdc;touch-action:manipulation}
 .vid #bv{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:transparent}
 .vid .vbg{position:absolute;inset:-6%;width:112%;height:112%;object-fit:cover;filter:blur(28px) saturate(1.1);opacity:.75;pointer-events:none}
+/* 開場影片滿版 */#splash .vid{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;z-index:60}@media (orientation:portrait){.vid #bv{object-fit:cover}}
 .vid .vhint{position:absolute;bottom:calc(14px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:rgba(255,255,255,.88);color:#6b4636;border-radius:16px;padding:4px 14px;font-size:14px;font-weight:700;white-space:nowrap;pointer-events:none}
 .mu{position:absolute;z-index:20;right:calc(10px + env(safe-area-inset-right));top:calc(10px + env(safe-area-inset-top));width:44px;height:44px;border-radius:50%;border:2px solid #F3B76B;background:#FFFDF8;font-size:20px;cursor:pointer;padding:0;display:none;align-items:center;justify-content:center}
 .vplay{position:absolute;z-index:20;left:50%;top:50%;transform:translate(-50%,-50%);width:84px;height:84px;border-radius:50%;border:4px solid #fff;background:rgba(124,184,104,.94);color:#fff;font-size:34px;display:none;align-items:center;justify-content:center;padding:0 0 0 6px;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.22)}
